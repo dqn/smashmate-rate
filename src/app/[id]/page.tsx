@@ -1,6 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import CountUp from "react-countup";
+
+const fetchIntervalMillis = 5_000;
+const counterAnimationDurationSec = 2;
 
 function fetchRate(id: string): Promise<number> {
   return fetch(`/api/rate/${id}`)
@@ -15,13 +19,30 @@ type RateProps = {
 const Rate: React.FC<RateProps> = ({ id }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
+  const [prevRate, setPrevRate] = useState(1500);
   const [rate, setRate] = useState(0);
 
   useEffect(() => {
-    fetchRate(id)
-      .then((rate) => setRate(rate))
-      .catch(() => setIsError(true))
-      .finally(() => setIsLoading(false));
+    const update = () => {
+      fetchRate(id)
+        .then((rate) => {
+          setRate(rate);
+
+          setTimeout(() => {
+            setPrevRate(rate);
+          }, counterAnimationDurationSec * 1_000);
+        })
+        .catch(() => setIsError(true))
+        .finally(() => setIsLoading(false));
+    };
+
+    update();
+
+    const intervalId = setInterval(update, fetchIntervalMillis);
+
+    return () => {
+      clearInterval(intervalId);
+    };
   }, []);
 
   if (isLoading) {
@@ -32,7 +53,16 @@ const Rate: React.FC<RateProps> = ({ id }) => {
     return <span>N/A</span>;
   }
 
-  return <span>{rate}</span>;
+  return (
+    <span>
+      <CountUp
+        start={prevRate}
+        end={rate}
+        duration={counterAnimationDurationSec}
+        useEasing
+      />
+    </span>
+  );
 };
 
 type Props = {
