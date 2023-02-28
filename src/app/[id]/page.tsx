@@ -46,7 +46,7 @@ const Rate: React.FC<RateProps> = ({ id }) => {
   }, []);
 
   if (isLoading) {
-    return <span>loading...</span>;
+    return <span>...</span>;
   }
 
   if (isError) {

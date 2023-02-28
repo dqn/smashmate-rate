@@ -2,7 +2,7 @@ import "../globals.css";
 
 export const metadata = {
   title: "Smashmate Rate",
-  description: "Smashrate rate observer",
+  description: "Smashmate rate observer",
 };
 
 type Props = {
