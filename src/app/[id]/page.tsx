@@ -27,6 +27,7 @@ const Rate: React.FC<RateProps> = ({ id }) => {
       fetchRate(id)
         .then((rate) => {
           setRate(rate);
+          setIsError(false);
 
           setTimeout(() => {
             setPrevRate(rate);
