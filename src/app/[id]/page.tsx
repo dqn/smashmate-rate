@@ -74,7 +74,7 @@ type Props = {
 
 const Home: React.FC<Props> = (props) => {
   return (
-    <div className="font-mono text-9xl text-black text-stroke-2 text-stroke-white">
+    <div className="text-9xl text-white text-stroke-4 text-stroke-black">
       <Rate id={props.params.id} />
     </div>
   );
