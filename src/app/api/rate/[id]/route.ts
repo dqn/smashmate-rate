@@ -10,13 +10,16 @@ export async function GET(_: Request, { params }: { params: Params }) {
   });
   const text = await res.text();
 
-  const matches = text.match(/<span class="rate_text">.+?(\d{4}).+?<span/s);
+  const matches = text.match(
+    /<span class="rate_text">.+?(\d{4}).+?<span.+?(\d{1,5})位.+?<\/span>/s
+  );
 
   if (matches === null) {
     throw new Error("invalid id");
   }
 
   const rate = Number(matches[1]);
+  const rank = Number(matches[2]);
 
-  return NextResponse.json({ rate });
+  return NextResponse.json({ rate, rank });
 }

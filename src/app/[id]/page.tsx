@@ -1,37 +1,39 @@
 "use client";
 
+import ordinal from "ordinal";
 import { useEffect, useState } from "react";
 import CountUp from "react-countup";
-import Marquee from "react-fast-marquee";
 
 const fetchIntervalMillis = 5_000;
 const counterAnimationDurationSec = 2;
 
-function fetchRate(id: string): Promise<number> {
-  return fetch(`/api/rate/${id}`)
-    .then((res) => res.json())
-    .then((json) => json.rate);
+function fetchRate(id: string): Promise<{ rate: number; rank: number }> {
+  return fetch(`/api/rate/${id}`).then((res) => res.json());
 }
 
 type RateProps = {
   id: string;
 };
 
-const Rate: React.FC<RateProps> = ({ id }) => {
+const RateAndRank: React.FC<RateProps> = ({ id }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [prevRate, setPrevRate] = useState(1500);
   const [rate, setRate] = useState(0);
+  const [prevRank, setPrevRank] = useState(100);
+  const [rank, setRank] = useState(0);
 
   useEffect(() => {
     const update = () => {
       fetchRate(id)
-        .then((rate) => {
+        .then(({ rate, rank }) => {
           setRate(rate);
+          setRank(rank);
           setIsError(false);
 
           setTimeout(() => {
             setPrevRate(rate);
+            setPrevRank(rank);
           }, counterAnimationDurationSec * 1_000);
         })
         .catch(() => setIsError(true))
@@ -56,14 +58,27 @@ const Rate: React.FC<RateProps> = ({ id }) => {
   }
 
   return (
-    <span>
-      <CountUp
-        start={prevRate}
-        end={rate}
-        duration={counterAnimationDurationSec}
-        useEasing
-      />
-    </span>
+    <div className="relative">
+      <span>
+        <CountUp
+          start={prevRate}
+          end={rate}
+          duration={counterAnimationDurationSec}
+          useEasing
+        />
+      </span>
+      <span className="text-7xl absolute left-[270px] top-[40px]">
+        (
+        <CountUp
+          start={prevRank}
+          end={rank}
+          duration={counterAnimationDurationSec}
+          useEasing
+          formattingFn={ordinal}
+        />
+        )
+      </span>
+    </div>
   );
 };
 
@@ -77,19 +92,8 @@ const Home: React.FC<Props> = (props) => {
   const isOmu = props.params.id === "omu";
 
   return (
-    <div className="text-9xl text-white text-stroke-4 text-stroke-black">
-      <Rate id={props.params.id} />
-      {isOmu && (
-        <div className="w-[280px]">
-          <Marquee
-            className="text-7xl text-stroke-0 bg-black/90 font-sans h-[120px] py-6"
-            gradient={false}
-            speed={250}
-          >
-            うめきの言い訳一覧:「カフェイン取りすぎて体調不良(ウメブラ)」、「元々出る気無かったけど無理して出た+コントローラーも壊れた(デルタ)」、「頑張りすぎて体調崩した(篝火ザクレイ戦後)」、「ヘッドフォンが自分のじゃないと…(マエスマ)」、「疲労が取れてない(鬼灯火、vsオムアツ敗戦)」。かになべ「あれは勝者に失礼だからやめた方がいい、反省して欲しい」
-          </Marquee>
-        </div>
-      )}
+    <div className="text-white text-stroke-4 text-stroke-black text-9xl">
+      <RateAndRank id={props.params.id} />
     </div>
   );
 };
