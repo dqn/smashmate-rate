@@ -1,6 +1,5 @@
 "use client";
 
-import ordinal from "ordinal";
 import { useEffect, useState } from "react";
 import CountUp from "react-countup";
 
@@ -20,20 +19,16 @@ const RateAndRank: React.FC<RateProps> = ({ id }) => {
   const [isError, setIsError] = useState(false);
   const [prevRate, setPrevRate] = useState(1500);
   const [rate, setRate] = useState(0);
-  const [prevRank, setPrevRank] = useState(100);
-  const [rank, setRank] = useState(0);
 
   useEffect(() => {
     const update = () => {
       fetchRate(id)
-        .then(({ rate, rank }) => {
+        .then(({ rate }) => {
           setRate(rate);
-          setRank(rank);
           setIsError(false);
 
           setTimeout(() => {
             setPrevRate(rate);
-            setPrevRank(rank);
           }, counterAnimationDurationSec * 1_000);
         })
         .catch(() => setIsError(true))
@@ -58,27 +53,12 @@ const RateAndRank: React.FC<RateProps> = ({ id }) => {
   }
 
   return (
-    <div className="relative">
-      <span>
-        <CountUp
-          start={prevRate}
-          end={rate}
-          duration={counterAnimationDurationSec}
-          useEasing
-        />
-      </span>
-      <span className="text-7xl absolute left-[270px] top-[40px]">
-        (
-        <CountUp
-          start={prevRank}
-          end={rank}
-          duration={counterAnimationDurationSec}
-          useEasing
-          formattingFn={ordinal}
-        />
-        )
-      </span>
-    </div>
+    <CountUp
+      start={prevRate}
+      end={rate}
+      duration={counterAnimationDurationSec}
+      useEasing
+    />
   );
 };
 
@@ -89,8 +69,6 @@ type Props = {
 };
 
 const Home: React.FC<Props> = (props) => {
-  const isOmu = props.params.id === "omu";
-
   return (
     <div className="text-white text-stroke-4 text-stroke-black text-9xl">
       <RateAndRank id={props.params.id} />
